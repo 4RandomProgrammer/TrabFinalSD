@@ -10,8 +10,9 @@ import (
     "github.com/gin-gonic/gin"
     "context"
 	"log"
-    // "fmt"
+    "fmt"
     "math"
+    "strings"
 )
 
 // data
@@ -43,19 +44,38 @@ var APIID = "A"
 
 func main() {
 
+    var process string
+
+    for ok := true; ok; ok = process != "A" || process != "B" {
+
+        fmt.Scanf("%s", &process)
+        process = strings.ToUpper(process)
+
+    }
+    
+    APIID = process //Colocando o ID para colocar no BD o correto
+
     router := gin.Default()
-    router.GET("/getData", getAlbums)
-    router.GET("/albums/:id", getAlbumByID)
-    router.POST("/insert/", postAlbums)
+    router.GET("/getData", getData)
+    router.POST("/insert/", insert)
 
     initBD()
-    
-    router.Run("localhost:8090")
+
+    var host string
+
+    if process == "A" {
+        host = "8090"
+    } else {
+        host = "8080"
+    }
+
+    router.Run("localhost:"+host)
 }
 
 func initBD(){
+    
     serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-    clientOptions := options.Client().ApplyURI("mongodb+srv://luishenriques:luis123@trabsd.owhqaht.mongodb.net/?retryWrites=true&w=majority").SetServerAPIOptions(serverAPI)
+    clientOptions := options.Client().ApplyURI("mongodb+srv://luishenriques:luis123@trabsd.owhqaht.mongodb.net/?retryWrites=true&w=majority").SetServerAPIOptions(serverAPI) //Server do mongo remoto para não baixar o bd
     client, err := mongo.Connect(ctx, clientOptions)
 
     if err != nil {
@@ -71,14 +91,16 @@ func initBD(){
 }
 
 // getAlbums responds with the list of all insertion in db as JSON.
-func getAlbums(c *gin.Context) {
+func getData(c *gin.Context) {
 
     var AllBdData = []BdData{}
 
     cursor, err := collection.Find(context.TODO(), bson.D{})
+
     if err != nil {
         log.Fatal(err)
     }
+
     for cursor.Next(context.TODO()) {
 
         var result BdData
@@ -90,6 +112,7 @@ func getAlbums(c *gin.Context) {
         AllBdData = append(AllBdData,result)
         
     }
+
     if err := cursor.Err(); err != nil {
         log.Fatal(err)
     }
@@ -99,7 +122,7 @@ func getAlbums(c *gin.Context) {
 
 
 // postAlbums adds an album from JSON received in the request body.
-func postAlbums(c *gin.Context) {
+func insert(c *gin.Context) {
     // newData,err := io.ReadAll(c.Request.Body)
     var requestBody RequestData
     
@@ -124,10 +147,3 @@ func postAlbums(c *gin.Context) {
 
     c.IndentedJSON(http.StatusCreated, object)
 }   
-
-// getAlbumByID locates the album whose ID value matches the id
-// parameter sent by the client, then returns that album as a response.
-func getAlbumByID(c *gin.Context) {
-    
-    c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
-}
