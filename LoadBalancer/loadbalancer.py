@@ -7,15 +7,16 @@ balance = 0
 
 @app.route('/getData/', methods=['GET'])
 def getData():
-    print('TESTE PASSEI AQUI')
     global balance
     value = None
     port = '8080'
 
     if balance == 0:
-        value = requests.get('apiA:'+ port + '/getData/')
+        print('em A')
+        value = requests.get('http://apiA:'+ port + '/getData/')
     else:
-        value = requests.get('apiB:'+ port + '/getData/')
+        print('em B')
+        value = requests.get('http://apiB:'+ port + '/getData/')
 
     balance = 1 - balance
 
@@ -23,7 +24,6 @@ def getData():
 
 @app.route('/postData/', methods=['POST'])
 def postData():
-    print('TESTE PASSEI AQUI')
     global balance
     value = None
     x = request.get_json()
@@ -35,9 +35,9 @@ def postData():
     }
 
     if balance == 0:
-        value = requests.post('apiA:'+ port + '/insert/', json=x)
+        value = requests.post('http://apiA:'+ port + '/insert/', json=x)
     else:
-        value = requests.post('apiB:'+ port + '/insert/', data=inverse)
+        value = requests.post('http://apiB:'+ port + '/insert/', json=inverse)
 
     balance = 1 - balance
 
