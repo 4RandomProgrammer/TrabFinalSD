@@ -10,9 +10,8 @@ import (
     "github.com/gin-gonic/gin"
     "context"
 	"log"
-    "fmt"
     "math"
-    "strings"
+    "os"
 )
 
 // data
@@ -44,16 +43,7 @@ var APIID = "A"
 
 func main() {
 
-    var process string
-
-    for ok := true; ok; ok = process != "A" || process != "B" {
-
-        fmt.Scanf("%s", &process)
-        process = strings.ToUpper(process)
-
-    }
-    
-    APIID = process //Colocando o ID para colocar no BD o correto
+    APIID = os.Getenv("process")
 
     router := gin.Default()
     router.GET("/getData", getData)
@@ -61,19 +51,10 @@ func main() {
 
     initBD()
 
-    var host string
-
-    if process == "A" {
-        host = "8090"
-    } else {
-        host = "8080"
-    }
-
-    router.Run("localhost:"+host)
+    router.Run("localhost:8080")
 }
 
 func initBD(){
-    
     serverAPI := options.ServerAPI(options.ServerAPIVersion1)
     clientOptions := options.Client().ApplyURI("mongodb+srv://luishenriques:luis123@trabsd.owhqaht.mongodb.net/?retryWrites=true&w=majority").SetServerAPIOptions(serverAPI) //Server do mongo remoto para não baixar o bd
     client, err := mongo.Connect(ctx, clientOptions)
@@ -104,13 +85,11 @@ func getData(c *gin.Context) {
     for cursor.Next(context.TODO()) {
 
         var result BdData
-        
         if err := cursor.Decode(&result); err != nil {
             log.Fatal(err)
         }
 
         AllBdData = append(AllBdData,result)
-        
     }
 
     if err := cursor.Err(); err != nil {
@@ -125,11 +104,9 @@ func getData(c *gin.Context) {
 func insert(c *gin.Context) {
     // newData,err := io.ReadAll(c.Request.Body)
     var requestBody RequestData
-    
     if err := c.BindJSON(&requestBody); err != nil {
         log.Fatal(err)
     }
-    
     var teste = math.Pow(requestBody.X, requestBody.Y)
 
 
@@ -146,4 +123,4 @@ func insert(c *gin.Context) {
     err = collection.FindOne(context.TODO(), filter).Decode(&object)
 
     c.IndentedJSON(http.StatusCreated, object)
-}   
+}

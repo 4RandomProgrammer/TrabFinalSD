@@ -11,8 +11,8 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build -o /docker-APIs
+RUN go build -o /docker-apis
 
 EXPOSE 8080
 
-CMD [ "/docker-APIs" ]
+CMD [ "/docker-apis" ]

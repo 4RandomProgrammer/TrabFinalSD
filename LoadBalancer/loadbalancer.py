@@ -5,35 +5,43 @@ app = Flask(__name__)
 global balance
 balance = 0
 
-@app.route('/hello/', methods=['GET'])
-def welcome():
+@app.route('/getData/', methods=['GET'])
+def getData():
+    print('TESTE PASSEI AQUI')
     global balance
     value = None
-    port = '8090'
+    port = '8080'
 
     if balance == 0:
-        port = '8090'
+        value = requests.get('apiA:'+ port + '/getData/')
     else:
-        port = '8080'
+        value = requests.get('apiB:'+ port + '/getData/')
 
-    value = requests.get('http://localhost:'+ port + '/getData/')
     balance = 1 - balance
 
     return value.json()
 
-@app.route('/teste/', methods=['POST'])
-def teste():
+@app.route('/postData/', methods=['POST'])
+def postData():
+    print('TESTE PASSEI AQUI')
+    global balance
+    value = None
     x = request.get_json()
-    
+    port = '8080'
+
     inverse = {
         "x":x["y"],
         "y":x["x"]
     }
 
-    responseA = requests.post('http://localhost:8090/insert/',json=x)
-    # responseB = requests.post('http://localhost:8070/insert/',data=inverse)
+    if balance == 0:
+        value = requests.post('apiA:'+ port + '/insert/', json=x)
+    else:
+        value = requests.post('apiB:'+ port + '/insert/', data=inverse)
 
-    return responseA.json()
+    balance = 1 - balance
+
+    return value.json()
 
 if __name__ == '__main__':
     balance = 0

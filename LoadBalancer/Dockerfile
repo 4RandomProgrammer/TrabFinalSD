@@ -14,8 +14,9 @@ WORKDIR /LoadBalancer
 # RUN apk add --no-cache jpeg-dev zlib-dev postgresql-dev chromium chromium-chromedriver
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN apk del .tmp
 
 COPY . .
+
+ENV FLASK_APP=loadbalancer.py
 
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]

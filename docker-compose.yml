@@ -1,0 +1,15 @@
+services:
+  apiA:
+    image: apigo
+    environment:
+      - process=A
+    hostname: apiA
+  apiB:
+    image: apigo
+    environment:
+      - process=B
+    hostname: apiB
+  loadBalancer:
+    image: load
+    ports:
+      - "8080:8080"
